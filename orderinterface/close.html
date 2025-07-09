@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pemesanan Ditutup</title>
+  <script>
+    function checkStatus() {
+      fetch('https://api.kembangkopi.my.id/api/isopen')
+        .then(res => res.json())
+        .then(cfg => {
+          if (cfg.open) window.location.href = "orderinterface.html";
+        });
+    }
+    setInterval(checkStatus, 3000); // cek setiap 3 detik
+    checkStatus();
+    </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #181818 0%, #232526 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      flex-direction: column;
+      margin: 0;
+      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 80%, rgba(197, 164, 126, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(197, 164, 126, 0.08) 0%, transparent 50%);
+      animation: floatParticles 20s ease-in-out infinite;
+      z-index: 0;
+    }
+    
+    @keyframes floatParticles {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+    
+    .close-container {
+      background: rgba(34, 34, 34, 0.95);
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 
+                  0 8px 32px rgba(197, 164, 126, 0.1),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+      padding: 48px 32px 40px 32px;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      border: 1px solid rgba(197, 164, 126, 0.3);
+      position: relative;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1;
+      animation: slideInUp 0.6s ease-out;
+    }
+    
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* Glowing border effect */
+    .close-container::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      right: -1px;
+      bottom: -1px;
+      background: linear-gradient(45deg, #c5a47e, transparent, #c5a47e);
+      border-radius: 24px;
+      opacity: 0.3;
+      z-index: -1;
+      animation: borderGlow 3s ease-in-out infinite alternate;
+    }
+    
+    @keyframes borderGlow {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.6; }
+    }
+    
+    .close-emoji {
+      font-size: 4rem;
+      margin-bottom: 24px;
+      display: block;
+      filter: drop-shadow(0 4px 12px rgba(197, 164, 126, 0.3));
+      line-height: 1;
+      animation: pulseEmoji 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulseEmoji {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    h1 {
+      color: #c5a47e;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      line-height: 1.2;
+      text-shadow: 0 2px 10px rgba(197, 164, 126, 0.3);
+      animation: textGlow 2s ease-in-out infinite alternate;
+    }
+    
+    @keyframes textGlow {
+      0% { text-shadow: 0 2px 10px rgba(197, 164, 126, 0.3); }
+      100% { text-shadow: 0 2px 20px rgba(197, 164, 126, 0.5); }
+    }
+    
+    p {
+      color: #e0e0e0;
+      font-size: 1.1rem;
+      margin-bottom: 0;
+      font-weight: 500;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+    
+    .info {
+      color: #b0b0b0;
+      font-size: 0.95rem;
+      margin-top: 24px;
+      font-weight: 400;
+      line-height: 1.5;
+      opacity: 0.8;
+    }
+    
+    .back-btn {
+      margin-top: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: linear-gradient(135deg, transparent, rgba(197, 164, 126, 0.1));
+      color: #c5a47e;
+      border: 2px solid #c5a47e;
+      border-radius: 16px;
+      padding: 16px 32px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 4px 20px rgba(197, 164, 126, 0.15),
+                  inset 0 1px 0 rgba(255,255,255,0.1);
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      min-height: 56px;
+      width: 100%;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Button hover effect */
+    .back-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .back-btn:hover::before,
+    .back-btn:focus::before {
+      left: 100%;
+    }
+    
+    .back-btn:hover, .back-btn:focus, .back-btn:active {
+      background: linear-gradient(135deg, #c5a47e, #d4b892);
+      color: #181818;
+      box-shadow: 0 8px 32px rgba(197, 164, 126, 0.3),
+                  inset 0 1px 0 rgba(255,255,255,0.2);
+      transform: translateY(-3px) scale(1.02);
+      border-color: #d4b892;
+    }
+    
+    .back-icon {
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .back-icon svg {
+      stroke: currentColor;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    
+    .back-btn:hover .back-icon,
+    .back-btn:active .back-icon {
+      transform: translateX(-4px) scale(1.1);
+    }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+      
+      .close-container {
+        padding: 40px 24px 32px 24px;
+        border-radius: 20px;
+        max-width: 100%;
+      }
+      
+      .close-container::before {
+        border-radius: 20px;
+      }
+      
+      h1 { 
+        font-size: 1.8rem;
+        margin-bottom: 16px;
+      }
+      
+      .close-emoji { 
+        font-size: 3.2rem;
+        margin-bottom: 20px;
+      }
+      
+      p {
+        font-size: 1rem;
+      }
+      
+      .info {
+        font-size: 0.9rem;
+        margin-top: 20px;
+      }
+      
+      .back-btn {
+        margin-top: 28px;
+        font-size: 1rem;
+        padding: 14px 24px;
+        min-height: 52px;
+        border-radius: 14px;
+      }
+    }
+    
+    /* Extra small screens */
+    @media (max-width: 360px) {
+      .close-container {
+        padding: 36px 20px 28px 20px;
+        border-radius: 18px;
+      }
+      
+      .close-container::before {
+        border-radius: 18px;
+      }
+      
+      h1 { 
+        font-size: 1.6rem;
+      }
+      
+      .close-emoji { 
+        font-size: 2.8rem;
+      }
+      
+      p {
+        font-size: 0.95rem;
+      }
+      
+      .info {
+        font-size: 0.85rem;
+      }
+      
+      .back-btn {
+        font-size: 0.95rem;
+        padding: 12px 20px;
+        border-radius: 12px;
+      }
+    }
+    
+    /* Touch improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .back-btn:hover {
+        transform: none;
+      }
+      
+      .back-btn:active {
+        transform: scale(0.98);
+      }
+      
+      .back-btn:hover::before {
+        left: -100%;
+      }
+    }
+    
+    /* Reduced motion accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="close-container">
+    <span class="close-emoji">🤷</span>
+    <h1>We are closed mate</h1>
+    <p>Sorry, we are closed at the moment.<br>Please come back later.</p>
+    <div class="info">The operating hours may change at any time.<br>Thank you for your understanding!</div>
+    <button class="back-btn" onclick="window.location.href='orderinterface.html'">
+      <span class="back-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </span>
+      <span>Back to Order</span>
+    </button>
+  </div>
+</body>
+</html>

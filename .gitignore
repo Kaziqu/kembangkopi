@@ -1,0 +1,15 @@
+dashboard/.env 
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+.DS_Store
+.env
+node_modules/
+dist/
+build/
+.vscode/
+.idea/

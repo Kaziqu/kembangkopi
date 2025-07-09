@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Dashboard Barista Pro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #111111;
+            --card-bg: #1a1a1a;
+            --hover-bg: #222222;
+            --border: #2a2a2a;
+            --border-light: #c9aa56;
+            --accent: rgb(151, 157, 163);
+            --accent-hover: #9e7e26;
+            --text-primary: #ffffff;
+            --text-secondary: #cfb343;
+            --text-muted: #585454;
+            --success: #00d4aa;
+            --warning: #ff9f43;
+            --error: #ff6b6b;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --glow: rgba(138, 137, 135, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Header with enhanced gradient */
+        .header {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 50%, var(--card-bg) 100%);
+            border-radius: 24px;
+            padding: 32px 40px;
+            margin-bottom: 32px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            animation: headerGlow 8s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+            50% { transform: rotate(180deg) scale(1.1); opacity: 0.1; }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .dashboard-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            width: 100%;
+        }
+
+        .dashboard-row h1 {
+            margin: 0;
+            font-size: 2.1em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .logout-btn.beside-title {
+            background: #222;
+            color: #c9aa56;
+            border: 1px solid #c9aa56;
+            box-shadow: none;
+            padding: 8px 16px;
+            font-size: 0.95em;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 24px;
+        }
+        .logout-btn.beside-title:hover {
+            background: #c9aa56;
+            color: #181818;
+        }
+        .logout-btn.beside-title .logout-icon svg {
+            stroke: #c9aa56;
+            transition: stroke 0.2s;
+        }
+        .logout-btn.beside-title:hover .logout-icon svg {
+            stroke: #181818;
+        }
+
+        .header-left button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #222;
+            color: #c9aa56;
+            border: 1px solid #c9aa56;
+            box-shadow: none;
+            padding: 8px 16px;
+            font-size: 0.95em;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            margin-right: 12px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .header-left button:hover {
+            background: #c9aa56;
+            color: #181818;
+        }
+
+        .header-left button .logout-icon svg {
+            stroke: #c9aa56;
+            transition: stroke 0.2s;
+        }
+
+        .header-left button:hover .logout-icon svg {
+            stroke: #181818;
+        }
+
+        .header-left h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1em;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            background: rgba(39, 16, 16, 0.144);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .current-time {
+            font-size: 1.3em;
+            color: var(--accent);
+            font-weight: 600;
+            text-shadow: 0 0 10px var(--glow);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Enhanced Cards */
+        .card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 20px 40px var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px var(--shadow);
+            border-color: var(--border-light);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow) 0%, transparent 50%);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            padding: 24px 32px;
+            background: linear-gradient(135deg, var(--hover-bg) 0%, var(--card-bg) 100%);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-body {
+            padding: 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Order Queue */
+        .order-queue {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+
+        .order-item {
+            background: linear-gradient(135deg, var(--hover-bg) 0%, var(--card-bg) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .order-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 111, 111, 0.1), transparent);
+            transition: var(--transition);
+        }
+
+        .order-item:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 30px var(--shadow);
+            border-color: var(--accent);
+        }
+
+        .order-item:hover::before {
+            left: 100%;
+        }
+
+        .order-item.priority {
+            border-left: 4px solid var(--error);
+            background: linear-gradient(135deg, rgba(119, 39, 39, 0.1) 0%, var(--hover-bg) 100%);
+        }
+
+        .order-item.priority::after {
+            content: 'PRIORITY';
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: var(--error);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: priorityPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes priorityPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .order-id {
+            font-size: 0.9em;
+            color: var(--accent);
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .order-customer {
+            font-size: 1.2em;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .order-time {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .order-items {
+            margin-top: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .order-item-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+
+        .order-item-detail:hover {
+            background: rgba(255, 255, 255, 0.05);
+            margin: 0 -8px;
+            padding: 12px 8px;
+            border-radius: 8px;
+        }
+
+        .order-item-detail:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-name {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 1.05em;
+        }
+
+        .item-specs {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .item-price {
+            color: var(--accent);
+            font-weight: 600;
+            text-align: right;
+            font-size: 1.1em;
+        }
+
+        .item-quantity {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Stats Card */
+        .stats-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px var(--shadow);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            animation: statsGlow 6s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes statsGlow {
+            0%, 100% { transform: rotate(0deg) scale(0.8); opacity: 0.2; }
+            50% { transform: rotate(180deg) scale(1.2); opacity: 0.1; }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--hover-bg) 0%, var(--card-bg) 100%);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px var(--shadow);
+            border-color: var(--accent);
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--glow) 0%, transparent 50%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .stat-box:hover::before {
+            opacity: 1;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 730;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 20px var(--glow);
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            color: var(--text-secondary);
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Buttons */
+        .actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(245, 5, 5, 0.2), transparent);
+            transition: var(--transition);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            color: var(--primary-bg);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(97, 79, 22, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--hover-bg) 0%, var(--card-bg) 100%);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px var(--shadow);
+        }
+
+        /* Notes Section */
+        .notes-section {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--secondary-bg) 100%);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .notes-title {
+            color: var(--accent);
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .note-item {
+            background: linear-gradient(135deg, var(--hover-bg) 0%, var(--card-bg) 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .note-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px var(--shadow);
+            border-color: var(--border-light);
+        }
+
+        .note-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .note-title {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .note-content {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .note-content code {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            color: var(--primary-bg);
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(192, 161, 50, 0.4);
+            z-index: 1000;
+            animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Smooth entry animations */
+        @keyframes slideInUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .order-item {
+            animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card {
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header {
+                padding: 24px;
+            }
+
+            .header-left h1 {
+                font-size: 2em;
+            }
+
+            .dashboard-grid {
+                gap: 20px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: fixed;
+            top: 28px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #c9aa56 0%, #d4b55e 100%);
+            color: #181818;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(201,170,86,0.12);
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .logout-btn.left {
+            left: 32px;   /* kiri */
+            right: auto;  /* pastikan tidak nempel kanan */
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #d4b55e 0%, #c9aa56 100%);
+            box-shadow: 0 8px 24px rgba(201,170,86,0.18);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .logout-btn:active {
+            background: #b89c4a;
+            transform: scale(0.98);
+        }
+        .logout-icon {
+            display: flex;
+            align-items: center;
+            margin-right: 4px;
+        }
+        .logout-icon svg {
+            display: block;
+        }
+
+        .logout-btn.in-card {
+            position: static;
+            background: #222;
+            color: #c9aa56;
+            border: 1px solid #c9aa56;
+            box-shadow: none;
+            padding: 8px 16px;
+            font-size: 0.95em;
+            margin-left: 12px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .logout-btn.in-card:hover {
+            background: #c9aa56;
+            color: #181818;
+        }
+        .logout-btn.in-card .logout-icon svg {
+            stroke: #c9aa56;
+        }
+        .logout-btn.in-card:hover .logout-icon svg {
+            stroke: #181818;
+        }
+
+        .logout-btn.in-header {
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+            .logout-btn.beside-title {
+                margin-right: 0;
+                margin-bottom: 8px;
+            }
+        }
+
+        .welcome-message {
+            color: #c9aa56;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+            width: 100%;
+            letter-spacing: 0.5px;
+            animation: fadeIn 1s;
+        }
+        .toggle-btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: #c9aa56;
+            border: 2px solid #c9aa56;
+            border-radius: 10px;
+            padding: 10px 26px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.08rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(201,170,86,0.08);
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .toggle-btn-logout:hover, .toggle-btn-logout:focus {
+            background: #c9aa56;
+            color: #181818;
+            box-shadow: 0 4px 16px rgba(201,170,86,0.18);
+        }
+        .toggle-icon svg {
+            stroke: currentColor;
+            margin-right: 2px;
+            transition: transform 0.2s;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .toggle-btn-logout:hover .toggle-icon svg {
+            transform: translateX(2px) scale(1.08);
+            color: #181818;
+        }
+        @media (max-width: 480px) {
+            .toggle-btn-logout {
+                width: 100%;
+                justify-content: center;
+                font-size: 0.98rem;
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div id="welcome-message" class="welcome-message"></div>
+                    <div class="dashboard-row">
+                        <button class="logout-btn beside-title" onclick="logout()" title="Logout">
+                            <span class="logout-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9aa56" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                    <polyline points="16 17 21 12 16 7"/>
+                                    <line x1="21" y1="12" x2="9" y2="12"/>
+                                </svg>
+                            </span>
+                            Logout
+                        </button>
+                    </div>
+                    <br>
+                    <h1>Dashboard</h1>
+                    <!-- <p>Real-time Order Management System</p> -->
+                </div>
+                <div class="header-right">
+                    <div class="connection-status">
+                        <div class="status-dot"></div>
+                        <span id="connectionStatus">Connected to Supabase</span>
+                    </div>
+                    <div class="current-time" id="currentTime"></div>
+                    <button id="toggleOrderBtn" class="toggle-btn-logout" style="margin-top:12px;" onclick="toggleOrderStatus()">
+                        <span class="toggle-icon" id="toggleOrderIcon"></span>
+                        <span id="toggleOrderText">Loading...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        📋 Order Queue
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="completeOrder()">Complete Order</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="order-queue" id="orderQueue">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">☕</div>
+                            <p>No orders in queue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="card-title" style="margin-bottom: 24px; position: relative; z-index: 2;">
+                    📊 Statistics
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number" id="totalOrders">0</span>
+                        <span class="stat-label">Total Orders</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number" id="pendingOrders">0</span>
+                        <span class="stat-label">In Queue</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number" id="completedOrders">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number" id="revenue">Rp0</span>
+                        <span class="stat-label">Revenue</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+       <!-- <div class="notes-section">
+            <div class="notes-title">
+                📝 Integration Notes - Supabase WebSocket
+            </div>
+            <div class="note-item">
+                <div class="note-title">Data Structure dari Supabase</div>
+                <div class="note-content">
+                    Dashboard ini dirancang untuk data dengan struktur: order (order_id, total, customer_name, timestamp) dan items (name, price, quantity, milk, sugar). Setiap order memiliki array items yang menampilkan detail pesanan lengkap.
+                </div>
+            </div>
+            <div class="note-item">
+                <div class="note-title">Real-time dengan Supabase</div>
+                <div class="note-content">
+                    Gunakan Supabase realtime subscriptions: <code>supabase.channel('orders').on('INSERT', payload => addOrderToQueue(payload.new))</code>. Ini akan mendengarkan perubahan pada tabel orders dan langsung update dashboard.
+                </div>
+            </div>
+            <div class="note-item">
+                <div class="note-title">Implementasi Production</div>
+                <div class="note-content">
+                    1) Setup Supabase client dengan realtime enabled<br>
+                    2) Subscribe ke tabel 'orders' untuk new inserts<br>
+                    3) Join dengan tabel 'items' untuk detail pesanan<br>
+                    4) Update DOM saat ada perubahan data<br>
+                    5) Handle connection errors dan reconnection
+                </div>
+            </div>
+            <div class="note-item">
+                <div class="note-title">Code Sample untuk Supabase</div>
+                <div class="note-content">
+                    <code>
+                    const { createClient } = require('@supabase/supabase-js')<br>
+                    const supabase = createClient(url, key)<br>
+                    supabase.channel('orders').on('postgres_changes', {<br>
+                    &nbsp;&nbsp;event: 'INSERT', schema: 'public', table: 'orders'<br>
+                    }, payload => handleNewOrder(payload.new)).subscribe()
+                    </code>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- Notification Sound -->
+        <audio id="sound" src="notifsounds.mp3" preload="auto"></audio>
+        
+    <script>
+        // Redirect ke login.html jika belum login
+        
+        if (localStorage.getItem('barista_auth') !== 'authenticated') {
+            window.location.href = 'login.html';
+        }
+        
+        document.addEventListener('click', () => {
+            const audio = document.getElementById('sound');
+            if (audio) {
+                audio.play().catch(() => {}); // Unlock audio
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        }, { once: true });
+        //document.getElementById('sound').play()
+        
+        // Jalankan dashboard
+        document.addEventListener('DOMContentLoaded', initPythonDashboard);
+
+class BaristaAPI {
+    constructor() {
+        this.baseURL = 'http://127.0.0.1:8000/api';
+        this.websocket = null;
+        this.connectWebSocket();
+    }
+
+    // WebSocket connection for real-time updates
+    connectWebSocket() {
+        this.websocket = new WebSocket('ws://127.0.0.1:8000/ws-dashboard')
+        
+        this.websocket.onopen = () => {
+            console.log('WebSocket connected');
+            this.updateConnectionStatus('CONNECTED');
+        };
+
+        this.websocket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleWebSocketMessage(data);
+        };
+
+        this.websocket.onclose = () => {
+            console.log('WebSocket disconnected');
+            this.updateConnectionStatus('DISCONNECTED');
+            // Reconnect after 5 seconds
+            setTimeout(() => this.connectWebSocket(), 5000);
+        };
+
+        this.websocket.onclose = (event) => { // Accept the event object
+            console.log('WebSocket disconnected');
+            this.updateConnectionStatus('DISCONNECTED');
+            // Log close code and reason for more context
+            console.log('WebSocket close code:', event.code);
+            console.log('WebSocket close reason:', event.reason);
+            // Reconnect after 5 seconds
+            setTimeout(() => this.connectWebSocket(), 5000);
+        };
+
+        this.websocket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            this.updateConnectionStatus('ERROR');
+            // Note: The error object here is a generic Event and doesn't
+            // contain specific error details. Check onclose event for
+            // potential close codes or server logs for more info.
+        };
+    }
+
+    // Handle incoming WebSocket messages
+    handleWebSocketMessage(data) {
+        switch(data.type) {
+            case 'new_order':
+                this.addOrderToQueue(data.data);
+                this.playSound();
+                showNotification('New order received! 🔔');
+                break;
+            case 'order_completed':
+                this.removeOrderFromQueue(data.order_id);
+                break;
+            default:
+                console.log('Unknown message type:', data.type);
+        }
+    }
+
+    // Tambahkan fungsi ini di class BaristaAPI:
+    playSound() {
+        const audio = document.getElementById('sound');
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play();
+            // Setelah selesai play pertama, play lagi
+            audio.onended = () => {
+                audio.currentTime = 0;
+                audio.play();
+                // Hapus handler agar tidak loop terus
+                audio.onended = null;
+            };
+        }
+    }  
+
+    // API calls
+    async fetchOrders() {
+        try {
+            const response = await fetch(`${this.baseURL}/orders`);
+            // Check if the response status is OK (status in the range 200-299)
+            if (!response.ok) {
+                console.error(`Error fetching orders: HTTP status ${response.status}`);
+                return []; // Return empty array or handle the error appropriately
+            }
+            const data = await response.json();
+            return data.orders || [];
+        } catch (error) {
+            // This catch block will now primarily handle network errors
+            console.error('Error fetching orders:', error);
+            return [];
+        }
+    }
+
+    async completeOrder(orderId) {
+        try {
+            const response = await fetch(`${this.baseURL}/orders/${orderId}/complete`, {
+                method: 'PUT'
+            });
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('Error completing order:', error);
+            return { error: error.message };
+        }
+    }
+
+    async getStats() {
+        try {
+            const response = await fetch(`${this.baseURL}/stats`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+            return {
+                total_orders: 0,
+                pending_orders: 0,
+                completed_orders: 0,
+                revenue: 0
+            };
+        }
+    }
+
+    async createSampleOrder() {
+        try {
+            const response = await fetch(`${this.baseURL}/test/create-sample-order`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+            return result;
+        } catch (error) {
+            console.error('Error creating sample order:', error);
+            return { error: error.message };
+        }
+    }
+
+    // UI Update methods
+    addOrderToQueue(orderData) {
+        const orderQueue = document.getElementById('orderQueue');
+    
+        // Remove empty state if exists
+        const emptyState = orderQueue.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.style.opacity = '0';
+            emptyState.style.transform = 'translateY(-20px)';
+            setTimeout(() => emptyState.remove(), 300);
+        }
+
+        const orderDiv = document.createElement('div');
+        orderDiv.className = 'order-item';
+        orderDiv.id = `order-${orderData.order.order_id}`;
+        
+        // Check if priority
+        const isPriority = orderData.order.total > 50000 || orderData.items.length > 2;
+        if (isPriority) {
+            orderDiv.classList.add('priority');
+        }
+
+        // Build items HTML
+        let itemsHTML = '';
+        const grandTotal = orderData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        orderData.items.forEach(item => {
+            let specs = [];
+            if (item.milk && item.milk !== '-') specs.push(item.milk);
+            if (item.sugar && item.sugar !== '-') specs.push(item.sugar);
+            
+            itemsHTML += `
+                <div class="order-item-detail">
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        ${specs.length > 0 ? `<div class="item-specs">${specs.join(' • ')}</div>` : ''}
+                    </div>
+                    <div class="item-price">
+                        Rp${item.total.toLocaleString('id-ID')} 
+                        ${item.quantity > 1 ? `<div class="item-quantity">${item.quantity}x</div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        orderDiv.innerHTML = `
+            <div class="order-header">
+                <div>
+                    <div class="order-id">${orderData.order.order_id}</div>
+                    <div class="order-customer">${orderData.order.customer_name}</div>
+                </div>
+                <div class="order-time">${this.formatTime(orderData.order.timestamp)}</div>
+            </div>
+            <div class="order-items">
+                ${itemsHTML}
+                <div style="text-align:right; margin-top:12px; font-weight:700; color:var(--accent); font-size:1.1em;">
+                    Total: Rp${grandTotal.toLocaleString('id-ID')}
+                </div>
+            </div>
+        `;
+
+        // Smooth entry animation
+        orderDiv.style.opacity = '0';
+        orderDiv.style.transform = 'translateY(20px)';
+        orderQueue.appendChild(orderDiv);
+        
+        setTimeout(() => {
+            orderDiv.style.opacity = '1';
+            orderDiv.style.transform = 'translateY(0)';
+        }, 50);
+        
+        this.updateStatsFromAPI();
+    }
+
+    removeOrderFromQueue(orderId) {
+        const orderElement = document.getElementById(`order-${orderId}`);
+        if (orderElement) {
+            orderElement.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            orderElement.style.transform = 'translateX(100%) scale(0.8)';
+            orderElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                orderElement.remove();
+                this.updateStatsFromAPI();
+                
+                // Show empty state if no orders
+                const remainingOrders = document.querySelectorAll('.order-item');
+                if (remainingOrders.length === 0) {
+                    this.showEmptyState();
+                }
+            }, 500);
+        }
+    }
+
+    showEmptyState() {
+        const orderQueue = document.getElementById('orderQueue');
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+            <div class="empty-state-icon">☕</div>
+            <p>No orders in queue</p>
+        `;
+        orderQueue.appendChild(emptyState);
+    }
+
+    formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('id-ID', { 
+            hour: '2-digit', 
+            minute: '2-digit'
+        });
+    }
+
+    updateConnectionStatus(status) {
+        const statusElement = document.getElementById('connectionStatus');
+        const statusDot = document.querySelector('.status-dot');
+        
+        switch(status) {
+            case 'CONNECTED':
+                statusElement.textContent = 'Connected to API';
+                statusDot.style.background = '#00d4aa';
+                break;
+            case 'DISCONNECTED':
+                statusElement.textContent = 'Disconnected';
+                statusDot.style.background = '#ff6b6b';
+                break;
+            case 'ERROR':
+                statusElement.textContent = 'Connection Error';
+                statusDot.style.background = '#ff9f43';
+                break;
+            default:
+                statusElement.textContent = 'Connecting...';
+                statusDot.style.background = '#ff9f43';
+        }
+    }
+
+    async updateStatsFromAPI() {
+        const stats = await this.getStats();
+       
+        animateNumber('totalOrders', stats.total_sales_today);
+        animateNumber('pendingOrders', stats.pending_orders);
+        animateNumber('completedOrders', stats.completed_orders_today);
+        animateRevenue('revenue', stats.total_revenue_today);
+    }
+
+    async loadInitialOrders() {
+        const orders = await this.fetchOrders();
+        
+        // Clear existing orders
+        document.getElementById('orderQueue').innerHTML = '';
+        
+        if (orders.length === 0) {
+            this.showEmptyState();
+        } else {
+            orders.forEach(order => this.addOrderToQueue(order));
+        }
+    }
+}
+
+// Initialize API
+const api = new BaristaAPI();
+
+// Updated global functions
+async function completeOrder() {
+    const firstOrder = document.querySelector('.order-item');
+    if (!firstOrder) {
+        showNotification('No orders to complete 📋');
+        return;
+    }
+
+    const orderId = firstOrder.id.replace('order-', '');
+    const result = await api.completeOrder(orderId);
+    
+    if (result.error) {
+        showNotification(`Error: ${result.error} ❌`);
+    } else {
+        showNotification('Order completed successfully! ✅');
+        //api.playSound();
+        // UI update handled by WebSocket
+    }
+}
+
+async function addSampleOrder() {
+    const result = await api.createSampleOrder();
+    
+    if (result.error) {
+        showNotification(`Error: ${result.error} ❌`);
+    } else {
+        showNotification('Sample order created! 🔔');
+        // New order will be added via WebSocket
+    }
+}
+
+async function updateToggleButton() {
+  try {
+    const res = await fetch('https://api.kembangkopi.my.id/api/isopen');
+    const data = await res.json();
+    const btn = document.getElementById('toggleOrderBtn');
+    const icon = document.getElementById('toggleOrderIcon');
+    const text = document.getElementById('toggleOrderText');
+    if (data.open) {
+      text.textContent = "Close Order"
+      icon.innerHTML = `<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 17 21 12 16 7'/><line x1='21' y1='12' x2='9' y2='12'/></svg>`;
+    } else {
+      text.textContent = "Open Order";
+      icon.innerHTML = `<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='8 7 3 12 8 17'/><line x1='3' y1='12' x2='15' y2='12'/></svg>`;
+    }
+    btn.dataset.open = data.open ? "true" : "false";
+  } catch (e) {
+    const btn = document.getElementById('toggleOrderBtn');
+    const text = document.getElementById('toggleOrderText');
+    text.textContent = 'Status Error';
+    btn.disabled = true;
+  }
+}
+async function toggleOrderStatus() {
+  const btn = document.getElementById('toggleOrderBtn');
+  const text = document.getElementById('toggleOrderText');
+  const newStatus = btn.dataset.open !== "true";
+  if (text) text.textContent = 'Updating...';
+  btn.disabled = true;
+  try {
+    await fetch('https://api.kembangkopi.my.id/api/setopen', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ open: newStatus })
+    });
+  } catch (e) {
+    if (text) text.textContent = 'Error';
+  }
+  btn.disabled = false;
+  updateToggleButton();
+}
+document.addEventListener('DOMContentLoaded', updateToggleButton);
+
+// Initialize dashboard
+async function initPythonDashboard() {
+    try {
+        // Load initial orders
+        await api.loadInitialOrders();
+        
+        // Update stats
+        await api.updateStatsFromAPI();
+        
+        // Update time
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // Animate dashboard elements
+        const elements = document.querySelectorAll('.card, .stats-card, .notes-section');
+        elements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+        
+        console.log('Dashboard initialized successfully');
+        showNotification('Connected to API! 🐍');
+        
+    } catch (error) {
+        console.error('Failed to initialize dashboard:', error);
+        showNotification('Failed to connect to Python API ❌');
+    }
+}
+
+// Replace the old initialization
+document.addEventListener('DOMContentLoaded', initPythonDashboard);
+
+// Keep existing utility functions (updateTime, animateNumber, etc.)
+function updateTime() {
+    const now = new Date();
+    const timeString = now.toLocaleString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    const timeElement = document.getElementById('currentTime');
+    if (timeElement.textContent !== timeString) {
+        timeElement.style.opacity = '0.7';
+        setTimeout(() => {
+            timeElement.textContent = timeString;
+            timeElement.style.opacity = '1';
+        }, 100);
+    }
+}
+
+function animateNumber(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    const currentValue = parseInt(element.textContent) || 0;
+    const duration = 800;
+    const startTime = Date.now();
+    
+    function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        
+        const value = Math.round(currentValue + (targetValue - currentValue) * easeProgress);
+        element.textContent = value;
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    }
+    
+    animate();
+}
+
+function animateRevenue(elementId, targetValue) {
+    const element = document.getElementById(elementId);
+    const currentValue = parseInt(element.textContent.replace(/[^\d]/g, '')) || 0;
+    const duration = 800;
+    const startTime = Date.now();
+    
+    function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        
+        const value = Math.round(currentValue + (targetValue - currentValue) * easeProgress);
+        element.textContent = `Rp${value.toLocaleString('id-ID')}`;
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    }
+    
+    animate();
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    notification.style.transform = 'translateX(100%)';
+    notification.style.opacity = '0';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+        notification.style.opacity = '1';
+    }, 50);
+    
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+        // Add some visual feedback for interactions
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn')) {
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+                ripple.style.transform = 'scale(0)';
+                ripple.style.animation = 'ripple 0.6s linear';
+                ripple.style.left = (e.offsetX - 10) + 'px';
+                ripple.style.top = (e.offsetY - 10) + 'px';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                
+                e.target.style.position = 'relative';
+                e.target.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+
+        // Add smooth page transitions
+        window.addEventListener('beforeunload', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'translateY(-20px)';
+        });
+
+        function logout() {
+    localStorage.removeItem('barista_auth');
+    localStorage.removeItem('barista_login_time');
+    // Optional: show notification before redirect
+    showNotification('Logged out successfully 👋');
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 800);
+}
+
+const now = Date.now();
+const loginTime = localStorage.getItem('barista_login_time');
+const eightHours = 8 * 60 * 60 * 1000;
+if (now - parseInt(loginTime) > eightHours) {
+    localStorage.removeItem('barista_auth');
+    localStorage.removeItem('barista_login_time');
+    showNotification('Session expired, please login again.');
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 1200);
+}
+
+showNotification('Selamat datang kembali, Barista! 👋');
+    </script>
+</body>
+</html>

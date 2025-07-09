@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Barista - Internal Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: rgba(34, 34, 34, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px 32px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            color: #c9aa56;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .logo p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ddd;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: 14px 48px 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="password"]:focus, input[type="text"]:focus {
+            border-color: #c9aa56;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(201, 170, 86, 0.2);
+        }
+
+        input[type="password"]::placeholder, input[type="text"]::placeholder {
+            color: #888;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #c9aa56 0%, #d4b55e 100%);
+            color: #181818;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, #d4b55e 0%, #c9aa56 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(201, 170, 86, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 6px;
+            border-left: 4px solid #ff6b6b;
+            display: none;
+        }
+
+        .success-message {
+            color: #51cf66;
+            font-size: 14px;
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(81, 207, 102, 0.1);
+            border-radius: 6px;
+            border-left: 4px solid #51cf66;
+            display: none;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .toggle-btn:hover {
+            color: #c9aa56;
+            background: rgba(201, 170, 86, 0.1);
+        }
+
+        .toggle-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(201, 170, 86, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .loading-spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid #c9aa56;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 32px 24px;
+            }
+            
+            .logo h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>Kembang Kopi</h1>
+            <p>Internal Dashboard</p>
+        </div>
+
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-toggle">
+                    <input type="password" id="password" placeholder="Masukkan password" required>
+                    <button type="button" class="toggle-btn" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                Login Dashboard
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Memverifikasi...</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+        </form>
+
+        <div class="footer">
+            <p>© 2025 Kembang Kopi Internal System</p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+          const passwordInput = document.getElementById('password');
+          const toggleBtn = document.querySelector('.toggle-btn');
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleBtn.innerHTML = '🙈';
+          } else {
+            passwordInput.type = 'password';
+            toggleBtn.innerHTML = '👁️';
+          }
+        }
+      
+        function showError(message) {
+          const errorDiv = document.getElementById('errorMessage');
+          const successDiv = document.getElementById('successMessage');
+          errorDiv.textContent = message;
+          errorDiv.style.display = 'block';
+          successDiv.style.display = 'none';
+          setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
+        }
+      
+        function showSuccess(message) {
+          const errorDiv = document.getElementById('errorMessage');
+          const successDiv = document.getElementById('successMessage');
+          successDiv.textContent = message;
+          successDiv.style.display = 'block';
+          errorDiv.style.display = 'none';
+        }
+      
+        function showLoading(show) {
+          const loadingDiv = document.getElementById('loading');
+          const loginBtn = document.getElementById('loginBtn');
+          if (show) {
+            loadingDiv.style.display = 'block';
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Memverifikasi...';
+          } else {
+            loadingDiv.style.display = 'none';
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Masuk Dashboard';
+          }
+        }
+      
+        // Auto focus dan cek status login
+        window.addEventListener('load', () => {
+          document.getElementById('password').focus();
+      
+          const token = localStorage.getItem("barista_auth");
+          const loginTime = localStorage.getItem("barista_login_time");
+      
+          if (token === "authenticated" && loginTime) {
+            const now = Date.now();
+            const maxTime = 8 * 60 * 60 * 1000;
+            if (now - parseInt(loginTime) < maxTime) {
+              window.location.href = "dashboard.html";
+            } else {
+              localStorage.removeItem("barista_auth");
+              localStorage.removeItem("barista_login_time");
+            }
+          }
+        });
+      
+        // Handle login form
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const password = document.getElementById("password").value;
+      
+          if (!password) {
+            showError("Password tidak boleh kosong.");
+            return;
+          }
+      
+          showLoading(true);
+      
+          try {
+            const res = await fetch("http://127.0.0.1:8000/api/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ password }),
+            });
+      
+            const data = await res.json();
+      
+            if (res.ok) {
+              localStorage.setItem("barista_auth", "authenticated");
+              localStorage.setItem("barista_login_time", Date.now().toString());
+              showSuccess("Login success! Redirecting...");
+              setTimeout(() => {
+                window.location.href = "dashboard.html";
+              }, 1000);
+            } else {
+              showError("Wrong password, please contact ikhsan");
+              document.getElementById("password").value = "";
+              document.getElementById("password").focus();
+            }
+          } catch (err) {
+            showError("Failed to connect to server.");
+          }
+      
+          showLoading(false);
+        });
+      
+        // Enter key support
+        document.getElementById("password").addEventListener("keypress", function(e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            document.getElementById("loginForm").dispatchEvent(new Event("submit"));
+          }
+        });
+      </script>
+      
+</body>
+</html>

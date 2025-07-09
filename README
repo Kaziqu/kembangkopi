@@ -1,0 +1,151 @@
+# Kembang Kopi - Order & Dashboard System
+
+Sistem pemesanan dan dashboard real-time untuk Kembang Kopi, terdiri dari backend (FastAPI + Supabase) dan dua frontend: order interface (untuk pelanggan) dan dashboard barista (untuk internal).
+
+---
+
+## Domain Production
+
+- **Backend API:** https://api.kembangkopi.my.id
+- **Order Interface (Publik):** https://kembangkopi.my.id
+- **Dashboard Barista:** https://dashboard.kembangkopi.my.id
+
+---
+
+## Fitur Utama
+
+- **Order Interface:** Pelanggan bisa memesan kopi/matcha/milk, dengan kustomisasi, dan checkout dengan reCAPTCHA.
+- **Dashboard Barista:** Melihat antrian pesanan secara real-time, statistik harian, dan menandai pesanan selesai.
+- **Realtime Update:** Dashboard menerima update pesanan baru & selesai via WebSocket.
+- **Login Internal:** Dashboard hanya bisa diakses barista dengan password.
+- **Order Open/Close:** Barista bisa toggle buka/tutup order dari dashboard, status dicek otomatis di orderinterface (polling).
+
+---
+
+## Struktur Project
+
+```
+backend/
+  dashboard/
+    main.py
+    .env
+    requirements.txt
+    dashboard.html
+    login.html
+    notifsounds.mp3
+frontend/
+  orderinterface/
+    orderinterface.html
+    close.html
+    invoice.html
+    (asset lain)
+README
+```
+
+---
+
+## 1. File yang Perlu di-Deploy
+
+- **Backend:**
+  - `dashboard/main.py`, `.env`, `requirements.txt`, asset (notifsounds.mp3)
+- **Frontend Order:**
+  - `orderinterface/orderinterface.html`, `close.html`, `invoice.html`, asset
+- **Frontend Dashboard:**
+  - `dashboard/dashboard.html`, `login.html`, asset
+
+---
+
+## 2. Setup & Deploy Backend (FastAPI)
+
+### a. Prasyarat
+- Python 3.10+
+- Supabase Project (PostgreSQL)
+- VPS/Cloud server (Ubuntu/Debian direkomendasikan)
+
+### b. Instalasi & Konfigurasi
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+Buat file `.env` di `dashboard/`:
+```
+SUPABASE_URL=... (isi dari Supabase)
+SUPABASE_KEY=... (isi dari Supabase)
+BARISTA_PASSWORD=... (isi password dashboard)
+RECAPTCHA_SECRET=... (isi secret key reCAPTCHA v3)
+```
+
+### c. Jalankan FastAPI
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+### d. (Rekomendasi) Nginx Reverse Proxy
+```
+server {
+    listen 80;
+    server_name api.kembangkopi.my.id;
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
+## 3. Setup & Deploy Frontend (Static Hosting)
+
+- **Orderinterface:**
+  - Upload semua file di `orderinterface/` ke hosting static (Netlify, Vercel, S3, Nginx, dsb)
+  - Domain: `kembangkopi.my.id`
+- **Dashboard:**
+  - Upload `dashboard.html`, `login.html`, asset ke hosting static
+  - Domain: `dashboard.kembangkopi.my.id`
+
+---
+
+## 4. Checklist Sebelum Deploy
+
+- [ ] `.env` sudah diisi dengan key production (Supabase, reCAPTCHA, password barista)
+- [ ] Semua endpoint API di orderinterface/close/dashboard sudah pakai domain production (`https://api.kembangkopi.my.id`)
+- [ ] CORS backend hanya izinkan domain production
+- [ ] reCAPTCHA site key di orderinterface.html sudah sesuai project production
+- [ ] Supabase: tabel `orders`, `items`, `settings` sudah ada di project production
+- [ ] Data awal di tabel `settings`: `insert into settings (key, value) values ('order_open', 'true');`
+- [ ] Semua asset (gambar, mp3, dsb) sudah di-upload ke hosting
+- [ ] Sudah testing end-to-end di domain production
+
+---
+
+## 5. Penjelasan Polling Status Open/Close
+
+- **orderinterface.html** dan **close.html** melakukan polling ke endpoint `/api/isopen` setiap 2-3 detik.
+- Jika status order ditutup, orderinterface redirect ke close.html.
+- Jika status order dibuka, close.html redirect ke orderinterface.html.
+- Endpoint API sudah diubah ke domain production.
+
+---
+
+## 6. Troubleshooting
+
+- **Tidak bisa login dashboard:** Cek `BARISTA_PASSWORD` di `.env`.
+- **Order tidak masuk:** Cek koneksi Supabase dan reCAPTCHA.
+- **Realtime tidak jalan:** Pastikan backend berjalan dan dashboard connect ke WebSocket.
+- **Orderinterface tidak auto-redirect:** Pastikan polling script di `<head>` dan endpoint sudah benar.
+
+---
+
+## 7. Lisensi
+
+MIT License. Silakan gunakan, modifikasi, dan kontribusi.
+
+---
+
+> Untuk pertanyaan lebih lanjut, hubungi: [@ikhsqnn](https://www.instagram.com/ikhsqnn)
+
+---
