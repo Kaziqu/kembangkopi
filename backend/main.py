@@ -1,9 +1,17 @@
 from fastapi import FastAPI
 import uvicorn
 from api_router.api_router import APIRouterManager
-from config.config import setup_middleware
+from config.config import setup_middleware, Config
 
-app = FastAPI(title="Kembang Kopi API", version="1.0.0")
+# Validate configuration on startup
+Config.validate_config()
+
+app = FastAPI(
+    title="Kembang Kopi API", 
+    version="1.0.0",
+    description="Real-time Order Management System for Kembang Kopi",
+    debug=Config.DEBUG
+)
 
 # Setup middleware
 setup_middleware(app)
@@ -13,4 +21,9 @@ api_router_manager = APIRouterManager()
 app.include_router(api_router_manager.router)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app, 
+        host=Config.HOST, 
+        port=Config.PORT,
+        reload=Config.DEBUG
+    )

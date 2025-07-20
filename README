@@ -7,7 +7,7 @@ Sistem pemesanan dan dashboard real-time untuk Kembang Kopi, terdiri dari backen
 ## Domain Production
 
 - **Backend API:** https://api.kembangkopi.my.id
-- **Order Interface (Publik):** https://kembangkopi.my.id
+- **Order Interface (Publik):** https://order.kembangkopi.my.id
 - **Dashboard Barista:** https://dashboard.kembangkopi.my.id
 
 ---
