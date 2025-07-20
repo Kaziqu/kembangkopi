@@ -358,9 +358,8 @@
                     year: 'numeric', month: 'long', day: 'numeric'
                 });
 
-                if (orderData.customer && orderData.customer.name) {
-                document.getElementById('customer-name').textContent = orderData.customer.name;
-            }
+                // Tampilkan nama customer di 'Billed To'
+                document.getElementById('customer-name').textContent = orderData.customer_name || 'Valued Customer';
                 const itemsTbody = document.getElementById('invoice-items');
                 itemsTbody.innerHTML = '';
 
@@ -380,7 +379,7 @@
                         itemDetails = `<div class="item-details">${itemDetails}</div>`;
                     }
 
-                    // console.log('item:', item); //debugging
+                    const itemTotal = (item.total !== undefined) ? item.total : (item.price || 0) * (item.quantity || 0);
 
                     row.innerHTML = `
                         <td>
@@ -389,7 +388,7 @@
                         </td>
                         <td class="item-price">Rp${(item.price || 0).toLocaleString('id-ID')}</td>
                         <td class="item-qty">${item.quantity || 0}</td>
-                        <td class="item-total">Rp${(item.total || 0).toLocaleString('id-ID')}</td>
+                        <td class="item-total">Rp${itemTotal.toLocaleString('id-ID')}</td>
                     `;
                     itemsTbody.appendChild(row);
                 });

@@ -49,9 +49,9 @@ README
 - **Backend:**
   - `dashboard/main.py`, `.env`, `requirements.txt`, asset (notifsounds.mp3)
 - **Frontend Order:**
-  - `orderinterface/orderinterface.html`, `close.html`, `invoice.html`, asset
+  - `orderinterface/index.html`, `close.html`, `invoice.html`, asset
 - **Frontend Dashboard:**
-  - `dashboard/dashboard.html`, `login.html`, asset
+  - `dashboard-frontend/dashboard.html`, `login.html`, asset
 
 ---
 

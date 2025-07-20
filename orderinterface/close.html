@@ -8,7 +8,7 @@
       fetch('https://api.kembangkopi.my.id/api/isopen')
         .then(res => res.json())
         .then(cfg => {
-          if (cfg.open) window.location.href = "orderinterface.html";
+          if (cfg.open) window.location.href = "index.html";
         });
     }
     setInterval(checkStatus, 3000); // cek setiap 3 detik
@@ -334,7 +334,7 @@
     <h1>We are closed mate</h1>
     <p>Sorry, we are closed at the moment.<br>Please come back later.</p>
     <div class="info">The operating hours may change at any time.<br>Thank you for your understanding!</div>
-    <button class="back-btn" onclick="window.location.href='orderinterface.html'">
+    <button class="back-btn" onclick="window.location.href='index.html'">
       <span class="back-icon">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 18 9 12 15 6" />

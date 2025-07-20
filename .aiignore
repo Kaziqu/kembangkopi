@@ -1,0 +1,26 @@
+# AI Ignore File
+# Prevents AI assistants from accessing sensitive files
+
+# Environment files
+.env
+*.env
+.env.*
+
+# Credentials and secrets
+*secret*
+*password*
+*key*
+*token*
+*credential*
+
+# Database files
+*.db
+*.sqlite*
+
+# Config files
+config.json
+secrets.json
+
+# Logs
+*.log
+logs/

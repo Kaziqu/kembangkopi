@@ -1,0 +1,39 @@
+# Files that AI assistants should not access
+# This prevents Cursor AI and other AI tools from reading sensitive files
+
+# Environment files with secrets
+.env*
+backend/.env*
+dashboard-frontend/.env*
+orderinterface/.env*
+**/.env*
+
+# Ignore any file with "secret" or "key" in the name
+*secret*
+*key*
+*password*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files that might contain sensitive info
+*.log
+logs/
+
+# Config files that might contain credentials
+config.json
+secrets.json
+credentials.json
+
+# SSH keys
+id_rsa
+id_ed25519
+*.pem
+*.key
+
+# Other sensitive patterns
+*token*
+*credential*
+*auth*

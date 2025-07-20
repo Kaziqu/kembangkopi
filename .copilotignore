@@ -1,0 +1,30 @@
+# Ignore files for GitHub Copilot suggestions
+# Copilot will not use these files for context or suggestions
+
+# Environment and secrets
+.env
+.env.*
+**/.env
+**/.env.*
+**/.env.example
+**/secrets.*
+**/*secret*
+**/*password*
+**/*credential*
+
+# Node and Python artifacts
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Log and database files
+*.log
+*.sqlite*
+*.db
+
+# VSCode and IDE settings
+.vscode/
+.idea/

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <title>Dashboard Barista Pro</title>
+    <title>Dashboard Kembang Kopi</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -1027,47 +1027,6 @@
             </div>
         </div>
 
-        <!-- Notes Section -->
-       <!-- <div class="notes-section">
-            <div class="notes-title">
-                📝 Integration Notes - Supabase WebSocket
-            </div>
-            <div class="note-item">
-                <div class="note-title">Data Structure dari Supabase</div>
-                <div class="note-content">
-                    Dashboard ini dirancang untuk data dengan struktur: order (order_id, total, customer_name, timestamp) dan items (name, price, quantity, milk, sugar). Setiap order memiliki array items yang menampilkan detail pesanan lengkap.
-                </div>
-            </div>
-            <div class="note-item">
-                <div class="note-title">Real-time dengan Supabase</div>
-                <div class="note-content">
-                    Gunakan Supabase realtime subscriptions: <code>supabase.channel('orders').on('INSERT', payload => addOrderToQueue(payload.new))</code>. Ini akan mendengarkan perubahan pada tabel orders dan langsung update dashboard.
-                </div>
-            </div>
-            <div class="note-item">
-                <div class="note-title">Implementasi Production</div>
-                <div class="note-content">
-                    1) Setup Supabase client dengan realtime enabled<br>
-                    2) Subscribe ke tabel 'orders' untuk new inserts<br>
-                    3) Join dengan tabel 'items' untuk detail pesanan<br>
-                    4) Update DOM saat ada perubahan data<br>
-                    5) Handle connection errors dan reconnection
-                </div>
-            </div>
-            <div class="note-item">
-                <div class="note-title">Code Sample untuk Supabase</div>
-                <div class="note-content">
-                    <code>
-                    const { createClient } = require('@supabase/supabase-js')<br>
-                    const supabase = createClient(url, key)<br>
-                    supabase.channel('orders').on('postgres_changes', {<br>
-                    &nbsp;&nbsp;event: 'INSERT', schema: 'public', table: 'orders'<br>
-                    }, payload => handleNewOrder(payload.new)).subscribe()
-                    </code>
-                </div>
-            </div>
-        </div> -->
-
         <!-- Notification Sound -->
         <audio id="sound" src="notifsounds.mp3" preload="auto"></audio>
         
@@ -1086,61 +1045,88 @@
                 audio.currentTime = 0;
             }
         }, { once: true });
-        //document.getElementById('sound').play()
         
         // Jalankan dashboard
         document.addEventListener('DOMContentLoaded', initPythonDashboard);
 
 class BaristaAPI {
     constructor() {
-        this.baseURL = 'http://127.0.0.1:8000/api';
+        this.baseURL = 'https://api.kembangkopi.my.id/api';
         this.websocket = null;
         this.connectWebSocket();
     }
 
     // WebSocket connection for real-time updates
     connectWebSocket() {
-        this.websocket = new WebSocket('ws://127.0.0.1:8000/ws-dashboard')
-        
+        this.websocket = new WebSocket('wss://api.kembangkopi.my.id/ws-dashboard');
+
         this.websocket.onopen = () => {
             console.log('WebSocket connected');
             this.updateConnectionStatus('CONNECTED');
+            
+            // Start heartbeat to keep connection alive
+            this.startHeartbeat();
         };
 
         this.websocket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            this.handleWebSocketMessage(data);
+            try {
+                // Try to parse as JSON first
+                const data = JSON.parse(event.data);
+                this.handleWebSocketMessage(data);
+            } catch (e) {
+                // If not JSON, treat as plain text message
+                console.log('WebSocket message (plain text):', event.data);
+                if (event.data.includes('Connected')) {
+                    console.log('WebSocket connection confirmed');
+                } else if (event.data === 'pong') {
+                    console.log('Heartbeat response received');
+                }
+            }
         };
 
-        this.websocket.onclose = () => {
+        this.websocket.onclose = (event) => { 
             console.log('WebSocket disconnected');
             this.updateConnectionStatus('DISCONNECTED');
-            // Reconnect after 5 seconds
-            setTimeout(() => this.connectWebSocket(), 5000);
-        };
-
-        this.websocket.onclose = (event) => { // Accept the event object
-            console.log('WebSocket disconnected');
-            this.updateConnectionStatus('DISCONNECTED');
-            // Log close code and reason for more context
             console.log('WebSocket close code:', event.code);
             console.log('WebSocket close reason:', event.reason);
-            // Reconnect after 5 seconds
-            setTimeout(() => this.connectWebSocket(), 5000);
+            
+            // Stop heartbeat
+            this.stopHeartbeat();
+            
+            // Reconnect after 3 seconds
+            setTimeout(() => this.connectWebSocket(), 3000);
         };
 
         this.websocket.onerror = (error) => {
             console.error('WebSocket error:', error);
             this.updateConnectionStatus('ERROR');
-            // Note: The error object here is a generic Event and doesn't
-            // contain specific error details. Check onclose event for
-            // potential close codes or server logs for more info.
         };
+    }
+
+    // Start heartbeat to keep WebSocket connection alive
+    startHeartbeat() {
+        this.heartbeatInterval = setInterval(() => {
+            if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+                this.websocket.send('ping');
+                console.log('Sent heartbeat ping');
+            }
+        }, 25000); // Send ping every 25 seconds
+    }
+
+    // Stop heartbeat
+    stopHeartbeat() {
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval);
+            this.heartbeatInterval = null;
+        }
     }
 
     // Handle incoming WebSocket messages
     handleWebSocketMessage(data) {
         switch(data.type) {
+            case 'connection_status':
+                console.log('WebSocket connection status:', data.message);
+                break;
             case 'new_order':
                 this.addOrderToQueue(data.data);
                 this.playSound();
@@ -1214,19 +1200,6 @@ class BaristaAPI {
                 completed_orders: 0,
                 revenue: 0
             };
-        }
-    }
-
-    async createSampleOrder() {
-        try {
-            const response = await fetch(`${this.baseURL}/test/create-sample-order`, {
-                method: 'POST'
-            });
-            const result = await response.json();
-            return result;
-        } catch (error) {
-            console.error('Error creating sample order:', error);
-            return { error: error.message };
         }
     }
 
@@ -1406,8 +1379,8 @@ async function completeOrder() {
         showNotification(`Error: ${result.error} ❌`);
     } else {
         showNotification('Order completed successfully! ✅');
-        //api.playSound();
-        // UI update handled by WebSocket
+        // Play sound for completed order
+        api.playSound();
     }
 }
 
@@ -1630,14 +1603,14 @@ function showNotification(message) {
             document.body.style.transform = 'translateY(-20px)';
         });
 
-        function logout() {
-    localStorage.removeItem('barista_auth');
-    localStorage.removeItem('barista_login_time');
-    // Optional: show notification before redirect
-    showNotification('Logged out successfully 👋');
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 800);
+    function logout() {
+        localStorage.removeItem('barista_auth');
+        localStorage.removeItem('barista_login_time');
+        // Optional: show notification before redirect
+        showNotification('Logged out successfully 👋');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 800);
 }
 
 const now = Date.now();

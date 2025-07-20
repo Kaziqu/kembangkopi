@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico">
     <title>Login Barista - Internal Dashboard</title>
     <style>
         * {
@@ -251,6 +252,14 @@
     </div>
 
     <script>
+      function handleLogin(event) {
+        event.preventDefault();
+        const password = document.getElementById('password').value;
+        if (!password) {
+          showError("Password tidak boleh kosong.");
+          return;
+        }}
+
         function togglePassword() {
           const passwordInput = document.getElementById('password');
           const toggleBtn = document.querySelector('.toggle-btn');
@@ -305,7 +314,7 @@
             const now = Date.now();
             const maxTime = 8 * 60 * 60 * 1000;
             if (now - parseInt(loginTime) < maxTime) {
-              window.location.href = "dashboard.html";
+              window.location.href = "index.html";
             } else {
               localStorage.removeItem("barista_auth");
               localStorage.removeItem("barista_login_time");
@@ -326,7 +335,7 @@
           showLoading(true);
       
           try {
-            const res = await fetch("http://127.0.0.1:8000/api/login", {
+            const res = await fetch("https://api.kembangkopi.my.id/api/auth", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ password }),
@@ -339,7 +348,7 @@
               localStorage.setItem("barista_login_time", Date.now().toString());
               showSuccess("Login success! Redirecting...");
               setTimeout(() => {
-                window.location.href = "dashboard.html";
+                window.location.href = "index.html";
               }, 1000);
             } else {
               showError("Wrong password, please contact ikhsan");

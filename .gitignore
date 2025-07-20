@@ -1,4 +1,17 @@
-dashboard/.env 
+# Environment files (NEVER commit these!)
+# These contain sensitive information like passwords and API keys
+.env
+.env.*
+backend/.env
+dashboard/.env
+dashboard-frontend/.env
+orderinterface/.env
+**/secrets.*
+**/*secret*
+**/*password*
+**/*credential*
+
+# Python
 venv/
 __pycache__/
 *.pyc
@@ -6,8 +19,9 @@ __pycache__/
 *.pyd
 *.sqlite3
 *.log
+
+# OS
 .DS_Store
-.env
 node_modules/
 dist/
 build/
